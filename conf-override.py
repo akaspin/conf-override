@@ -17,6 +17,9 @@ class Processor:
         self.out = []
         
     def go(self):
+        """
+        Run all
+        """
         for line in self.baselines:
             (dir, data) = self.extract_directive(line)
             
@@ -25,10 +28,13 @@ class Processor:
             else:
                 self.ops.append((dir, data))
             
-        self.extract_sources_blocks()
+        self.parse_overrides()
         self.finish()        
 
     def finish(self):
+        """
+        Print results
+        """
         for op in self.ops:
             if op[0] == 'raw':
                 self.out.append(op[1])
@@ -38,7 +44,10 @@ class Processor:
                 
         print '\n'.join(self.out)
 
-    def extract_sources_blocks(self):
+    def parse_overrides(self):
+        """
+        Parse override files
+        """
         self.sources = list(set(self.sources))
         self.blocks = {}
         for source in self.sources:
@@ -53,11 +62,21 @@ class Processor:
                     self.blocks[block].append(line)
                 
     def add_sources(self, line):
+        """
+        Search files from paths 
+        """
         for patt in line.split(' '):
             for file in glob.glob(patt):
                 self.sources.append(file)
             
     def extract_directive(self, line):
+        """
+        Try to extract directive from line
+        @return: tuple
+            ('raw', line)
+            ('block', block name)
+            ('gather', paths)
+        """
         stripped = line.strip()
         if stripped.startswith(self.marker):
             # May be directive
